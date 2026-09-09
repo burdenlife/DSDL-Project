@@ -106,20 +106,14 @@ pip install pyarrow
 
 **** Import Cadets data ****
 cd ~
-mkdir cadets
-cd cadets
-hf download Abhishek044545/darpa-tc-cadets-e3 --repo-type=dataset
-mkdir parquet
-mkdir parquet/splunk
-mv home/splunk_user/cache/huggingface/hub/datasets--Abhishek044545--darpa-tc-cadets-e3/blobs/* ./parquet
+mkdir cadets_google_drive
+cd cadets_google_drive
 
-nano convert_cadets_full.py
+Download all .json.tar.gz files from https://drive.google.com/drive/folders/179uDuz62Aw61Ehft6MoJCpPeBEz16VFy into the Splunk server
 
-#### Copy py file over
-#### Create cadets index
+extract all .json.tar.gz files 
 
-
-sudo python3 convert_cadets_full.py
+put the files in /official, /official_1 and /official_2
 
 
 ## Edit props.conf
@@ -131,16 +125,19 @@ mkdir /opt/splunk/etc/apps/cadets_ingest/local
 nano /opt/splunk/etc/apps/cadets_ingest/local/props.conf
 
 
-
 ## create cadets index manually through browser
 
-for f in /home/splunk_user/cadets/splunk/cadets_*.ndjson; do
-    echo "Ingesting $f"
 
-    sudo /opt/splunk/bin/splunk add oneshot "$f" \
-        -index cadets \
-        -sourcetype cadets:cdm
-done
+## Edit indexes.conf
 
+nano /opt/splunk/etc/apps/search/local/indexes.conf
+
+add in frozenTimePeriodInSecs = 4294967295 under [cadets]
+
+sudo /opt/splunk/bin/splunk restart --run-as-root
+
+## Ingest data
+
+run ingest_all.py 
 
 
